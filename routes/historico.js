@@ -66,19 +66,12 @@ router.post("/", (req, res) => {
 
 // Rota PUT para atualizar um usuário existente
 router.put("/:id", (req, res) => {
-  const { id_funcionario, id_tablet, data_emprestimo, data_devolucao } =
-    req.body;
+  const { id_funcionario, id_tablet } = req.body;
   const userId = req.params.id;
 
   const query =
     "UPDATE historico SET id_funcionario = ?, id_tablet = ? WHERE id = ?";
-  const values = [
-    id_funcionario,
-    id_tablet,
-    data_emprestimo,
-    data_devolucao,
-    userId,
-  ];
+  const values = [id_funcionario, id_tablet, userId];
 
   db.run(query, values, function (err) {
     if (err) {
@@ -94,8 +87,6 @@ router.put("/:id", (req, res) => {
       id: userId,
       id_funcionario,
       id_tablet,
-      data_emprestimo,
-      data_devolucao,
     });
   });
 });
