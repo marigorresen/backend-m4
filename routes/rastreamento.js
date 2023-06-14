@@ -3,10 +3,19 @@ const sqlite3 = require("sqlite3");
 
 const router = express.Router();
 const db = new sqlite3.Database("pirelli.db");
-
-// Rota GET para obter todos os usuários
+/*
+CREATE TABLE "rastreamento" (
+	"id"	INTEGER NOT NULL,
+	"setor"	TEXT NOT NULL,
+	"id_tablet"	INTEGER NOT NULL,
+	"data_hora"	datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY("id" AUTOINCREMENT),
+	FOREIGN KEY("id_tablet") REFERENCES "dispositivos"("id")
+);
+*/
+// Rota GET para obter todos os rastreios
 router.get("/", (req, res) => {
-  const query = "SELECT * FROM historico";
+  const query = "SELECT * FROM rastreamento";
 
   db.all(query, (err, rows) => {
     if (err) {
@@ -20,7 +29,7 @@ router.get("/", (req, res) => {
 
 // Rota GET para obter um usuário específico
 router.get("/:id", (req, res) => {
-  const query = "SELECT * FROM historico WHERE id = ?";
+  const query = "SELECT * FROM rastreamento WHERE id = ?";
   const userId = req.params.id;
 
   db.get(query, [userId], (err, row) => {
@@ -36,17 +45,15 @@ router.get("/:id", (req, res) => {
     res.json(row);
   });
 });
-//const query = 'INSERT INTO historico (id_funcionario, id_tablet, data_emprestimo, data_devolucao) VALUES (?, ?, ?, ?)';
 
 // Rota POST para criar um novo usuário
 router.post("/", (req, res) => {
-  const { id_funcionario, id_tablet, tipo_acesso, data_hora } =
-    req.body;
+  const { setor, id_tablet, data_hora } = req.body;
 
   const query =
-    'INSERT INTO historico (id_funcionario, id_tablet, tipo_acesso, data_hora) VALUES(?, ?, ?,datetime("now", "localtime"))';
+    'INSERT INTO rastreamento (setor, id_tablet, data_hora) VALUES(?, ?,datetime("now", "localtime"))';
 
-  const values = [id_funcionario, id_tablet, tipo_acesso, data_hora];
+  const values = [setor, id_tablet, data_hora];
 
   db.run(query, values, function (err) {
     if (err) {
@@ -56,9 +63,8 @@ router.post("/", (req, res) => {
 
     res.json({
       id: this.lastID,
-      id_funcionario,
+      setor,
       id_tablet,
-      tipo_acesso,
       data_hora,
     });
   });
@@ -66,12 +72,11 @@ router.post("/", (req, res) => {
 
 // Rota PUT para atualizar um usuário existente
 router.put("/:id", (req, res) => {
-  const { id_funcionario, id_tablet, tipo_acesso } = req.body;
+  const { setor, id_tablet } = req.body;
   const userId = req.params.id;
 
-  const query =
-    "UPDATE historico SET id_funcionario = ?, id_tablet = ?, tipo_acesso = ? WHERE id = ?";
-  const values = [id_funcionario, id_tablet, tipo_acesso, userId];
+  const query = "UPDATE rastreamento SET setor = ?, id_tablet = ? WHERE id = ?";
+  const values = [setor, id_tablet, userId];
 
   db.run(query, values, function (err) {
     if (err) {
@@ -85,9 +90,8 @@ router.put("/:id", (req, res) => {
 
     res.json({
       id: userId,
-      id_funcionario,
+      setor,
       id_tablet,
-      tipo_acesso,
     });
   });
 });
@@ -96,7 +100,7 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
   const userId = req.params.id;
 
-  const query = "DELETE FROM historico WHERE id = ?";
+  const query = "DELETE FROM rastreamento WHERE id = ?";
 
   db.run(query, [userId], function (err) {
     if (err) {
