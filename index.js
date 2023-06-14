@@ -15,10 +15,12 @@ const usersRoutes = require("./routes/user.js");
 const funcRoutes = require("./routes/funcionarios.js");
 const histRoutes = require("./routes/historico.js");
 const dispoRoutes = require("./routes/dispositivos.js");
+const rastreaRoutes = require("./routes/rastreamento.js");
 
 app.use("/user", usersRoutes);
 app.use("/func", funcRoutes);
 app.use("/hist", histRoutes);
 app.use("/dispo", dispoRoutes);
+app.use("/rastrea", rastreaRoutes);
 
-app.listen(3001, () => console.log("Listening at port 3000"));
+app.listen(3000, () => console.log("Listening at port 3000"));
