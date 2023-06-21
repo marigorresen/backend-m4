@@ -4,10 +4,28 @@ const sqlite3 = require("sqlite3");
 const router = express.Router();
 const db = new sqlite3.Database("pirelli.db");
 
-// Rota GET para obter todos os historicos
 router.get("/", (req, res) => {
-  const query = "SELECT * FROM historico";
+  const query = `
+    SELECT *
+    FROM historico
+  `;
+  db.all(query, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Error fetching historico" });
+    }
 
+    res.json(rows);
+  });
+});
+
+// Rota GET para obter todos os historicos
+router.get("/com-nome", (req, res) => {
+  const query = `
+    SELECT historico.*, funcionarios.nome
+    FROM historico
+    JOIN funcionarios ON historico.id_funcionario = funcionarios.id_empresa
+  `;
   db.all(query, (err, rows) => {
     if (err) {
       console.error(err);
@@ -39,8 +57,7 @@ router.get("/:id", (req, res) => {
 
 // Rota POST para criar um novo historico
 router.post("/", (req, res) => {
-  const { id_funcionario, id_tablet, tipo_acesso, data_hora } =
-    req.body;
+  const { id_funcionario, id_tablet, tipo_acesso, data_hora } = req.body;
 
   const query =
     'INSERT INTO historico (id_funcionario, id_tablet, tipo_acesso, data_hora) VALUES(?, ?, ?,datetime("now", "localtime"))';
@@ -116,7 +133,8 @@ router.post("/registro-acesso", (req, res) => {
   const { tablet_id, funcionario_id } = req.body;
 
   // Verificar se existe algum registro anterior para o tablet_id e funcionario_id
-  const query = "SELECT tipo_acesso FROM historico WHERE tablet_id = ? AND funcionario_id = ? ORDER BY data_hora DESC LIMIT 1";
+  const query =
+    "SELECT tipo_acesso FROM historico WHERE tablet_id = ? AND funcionario_id = ? ORDER BY data_hora DESC LIMIT 1";
   db.get(query, [tablet_id, funcionario_id], (err, row) => {
     if (err) {
       console.error(err);
@@ -133,8 +151,8 @@ router.post("/registro-acesso", (req, res) => {
     }
 
     // Inserir o novo registro de acesso no banco de dados
-    const query = "INSERT INTO historico (tablet_id, funcionario_id, tipo_acesso, data_hora) VALUES (?, ?, ?, datetime('now', 'localtime'))";
-    
+    const query =
+      "INSERT INTO historico (tablet_id, funcionario_id, tipo_acesso, data_hora) VALUES (?, ?, ?, datetime('now', 'localtime'))";
 
     db.run(query, [tablet_id, funcionario_id, tipo_acesso], function (err) {
       if (err) {
@@ -147,6 +165,5 @@ router.post("/registro-acesso", (req, res) => {
     });
   });
 });
-
 
 module.exports = router;
