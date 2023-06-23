@@ -18,6 +18,48 @@ router.get("/", (req, res) => {
   });
 });
 
+// Rota GET para obter todos os  ids
+router.get("/id", (req, res) => {
+  const query = "SELECT id FROM dispositivos";
+
+  db.all(query, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Error fetching users" });
+    }
+
+    res.json(rows);
+  });
+});
+
+// Rota GET para obter todos os  setores
+router.get("/setor", (req, res) => {
+  const query = "SELECT setor FROM dispositivos";
+
+  db.all(query, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Error fetching users" });
+    }
+
+    res.json(rows);
+  });
+});
+
+// Rota GET para obter todos os  macs
+router.get("/mac", (req, res) => {
+  const query = "SELECT mac FROM dispositivos";
+
+  db.all(query, (err, rows) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Error fetching users" });
+    }
+
+    res.json(rows);
+  });
+});
+
 // Rota GET para obter um usuário específico
 router.get("/:id", (req, res) => {
   const query = "SELECT * FROM dispositivos WHERE id = ?";
