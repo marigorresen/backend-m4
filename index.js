@@ -23,4 +23,4 @@ app.use("/hist", histRoutes);
 app.use("/dispo", dispoRoutes);
 app.use("/rastrea", rastreaRoutes);
 
-app.listen(3001, () => console.log("Listening at port 3000"));
+app.listen(3000, () => console.log("Listening at port 3000"));

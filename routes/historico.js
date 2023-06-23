@@ -60,7 +60,7 @@ router.post("/", (req, res) => {
   const { id_funcionario, id_tablet, tipo_acesso, data_hora } = req.body;
 
   const query =
-    'INSERT INTO historico (id_funcionario, id_tablet, tipo_acesso, data_hora) VALUES(?, ?, ?,datetime("now", "localtime"))';
+    'INSERT INTO historico (id_funcionario, id_tablet, tipo_acesso, data_hora) VALUES(?, ?, ?,datetime("now", "localtime", "-3 hours"))';
 
   const values = [id_funcionario, id_tablet, tipo_acesso, data_hora];
 
@@ -130,12 +130,12 @@ router.delete("/:id", (req, res) => {
 
 // Rota POST para registrar o acesso
 router.post("/registro-acesso", (req, res) => {
-  const { tablet_id, funcionario_id } = req.body;
+  const { id_tablet, id_funcionario } = req.body;
 
   // Verificar se existe algum registro anterior para o tablet_id e funcionario_id
   const query =
-    "SELECT tipo_acesso FROM historico WHERE tablet_id = ? AND funcionario_id = ? ORDER BY data_hora DESC LIMIT 1";
-  db.get(query, [tablet_id, funcionario_id], (err, row) => {
+    "SELECT tipo_acesso FROM historico WHERE id_tablet = ? AND id_funcionario = ? ORDER BY data_hora DESC LIMIT 1";
+  db.get(query, [id_tablet, id_funcionario], (err, row) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Error fetching access records" });
@@ -144,17 +144,17 @@ router.post("/registro-acesso", (req, res) => {
     let tipo_acesso;
     if (row) {
       // Se já existe um registro anterior
-      tipo_acesso = row.tipo_acesso === "entrada" ? "saida" : "entrada";
+      tipo_acesso = row.tipo_acesso === "retirada" ? "devolução" : "retirada";
     } else {
       // Se é o primeiro registro para o tablet_id e funcionario_id
-      tipo_acesso = "entrada";
+      tipo_acesso = "retirada";
     }
 
     // Inserir o novo registro de acesso no banco de dados
     const query =
-      "INSERT INTO historico (tablet_id, funcionario_id, tipo_acesso, data_hora) VALUES (?, ?, ?, datetime('now', 'localtime'))";
+      "INSERT INTO historico (id_tablet, id_funcionario, tipo_acesso, data_hora) VALUES (?, ?, ?, datetime('now', 'localtime', '-3 hours'))";
 
-    db.run(query, [tablet_id, funcionario_id, tipo_acesso], function (err) {
+    db.run(query, [id_tablet, id_funcionario, tipo_acesso], function (err) {
       if (err) {
         console.error(err);
         return res.status(500).json({ error: "Error creating access record" });
